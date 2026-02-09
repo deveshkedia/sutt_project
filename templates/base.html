@@ -1,0 +1,32 @@
+{% load static %}
+<!doctype html>
+<html lang="en" data-theme="dark">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>{% block title %}{% endblock %}</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+      tailwind.config = {
+        daisyui: {
+          themes: ["dark"],
+        }
+      }
+    </script>
+    <!-- DaisyUI -->
+    <link href="https://cdn.jsdelivr.net/npm/daisyui@4.4.19/dist/full.min.css" rel="stylesheet" type="text/css" />
+    <link rel="stylesheet" href="{% static 'css/navbar.css' %}" />
+    <link rel="stylesheet" href="{% static 'css/footer.css' %}" />
+    {% block link %}{% endblock %}
+  </head>
+  <body class="dark-theme">
+    {% include 'partials/navbar.html' %}
+    <main class="main-content">
+      {% block content %}{% endblock %}
+    </main>
+    {% include 'partials/footer.html' %}
+    <script src="{% static 'js/navbar.js' %}"></script>
+    {% block scripts %}{% endblock %}
+  </body>
+</html>

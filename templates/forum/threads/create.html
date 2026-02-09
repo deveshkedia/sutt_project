@@ -1,0 +1,145 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}Create Thread{% endblock %}
+
+{% block link %}
+<!-- Martor Editor Styles -->
+<link href="{% static 'plugins/css/ace.min.css' %}" type="text/css" media="all" rel="stylesheet" />
+<link href="{% static 'martor/css/martor.bootstrap.min.css' %}" type="text/css" media="all" rel="stylesheet" />
+{% endblock %}
+
+{% block content %}
+<div class="container mx-auto px-4 py-8 max-w-4xl">
+  <div class="card bg-base-200 shadow-xl">
+    <div class="card-body">
+      <h2 class="card-title text-3xl mb-4">Create New Thread</h2>
+      <p class="text-base-content/70 mb-6">Start a new discussion and engage with the community</p>
+      
+      <form method="post" class="space-y-6">
+        {% csrf_token %}
+        
+        <!-- Title Field -->
+        <div class="form-control w-full">
+          <label class="label">
+            <span class="label-text font-semibold">Thread Title</span>
+            <span class="label-text-alt text-error">*</span>
+          </label>
+          <input 
+            type="text" 
+            name="title" 
+            placeholder="Enter a descriptive title for your thread" 
+            class="input input-bordered w-full focus:input-primary" 
+            required
+            maxlength="200"
+          />
+          <label class="label">
+            <span class="label-text-alt">Maximum 200 characters</span>
+          </label>
+        </div>
+
+        <!-- Category Field -->
+        <div class="form-control w-full">
+          <label class="label">
+            <span class="label-text font-semibold">Category</span>
+          </label>
+          <select name="category" class="select select-bordered w-full focus:select-primary">
+            <option value="">Select a category (optional)</option>
+            {% for category in categories %}
+            <option value="{{ category.id }}">{{ category.name }}</option>
+            {% endfor %}
+          </select>
+          <label class="label">
+            <span class="label-text-alt">Choose a category to help organize your thread</span>
+          </label>
+        </div>
+
+        <!-- Content Field -->
+        <div class="form-control w-full">
+          <label class="label">
+            <span class="label-text font-semibold">Content</span>
+            <span class="label-text-alt text-error">*</span>
+          </label>
+          <textarea 
+            name="content" 
+            class="textarea textarea-bordered w-full h-48 focus:textarea-primary" 
+            placeholder="Write your thread content here..."
+            required
+          ></textarea>
+          <label class="label">
+            <span class="label-text-alt">Share your thoughts, questions, or ideas</span>
+          </label>
+        </div>
+
+        <!-- Resources Field -->
+        <div class="form-control w-full">
+          <label class="label">
+            <span class="label-text font-semibold">Resources</span>
+          </label>
+          <div class="space-y-2 max-h-48 overflow-y-auto border border-base-300 rounded-lg p-4">
+            {% if resources %}
+              {% for resource in resources %}
+              <label class="label cursor-pointer justify-start gap-3 hover:bg-base-200 rounded-lg p-2">
+                <input 
+                  type="checkbox" 
+                  name="resources" 
+                  value="{{ resource.id }}" 
+                  class="checkbox checkbox-primary"
+                />
+                <div class="flex-1">
+                  <span class="label-text font-medium">{{ resource.title }}</span>
+                  <span class="label-text-alt block text-xs">{{ resource.get_type_display }} - {{ resource.course.name }}</span>
+                </div>
+              </label>
+              {% endfor %}
+            {% else %}
+              <p class="text-sm text-base-content/60">No resources available</p>
+            {% endif %}
+          </div>
+          <label class="label">
+            <span class="label-text-alt">Select relevant resources to attach to your thread</span>
+          </label>
+        </div>
+
+        <!-- Locked Thread Option -->
+        <div class="form-control">
+          <label class="label cursor-pointer justify-start gap-3">
+            <input 
+              type="checkbox" 
+              name="locked" 
+              class="checkbox checkbox-primary"
+            />
+            <div>
+              <span class="label-text font-semibold">Lock Thread</span>
+              <span class="label-text-alt block">Prevent new replies to this thread</span>
+            </div>
+          </label>
+        </div>
+
+        <!-- Form Actions -->
+        <div class="card-actions justify-end pt-4">
+          <a href="{% url 'forum-home' %}" class="btn btn-ghost">Cancel</a>
+          <button type="submit" class="btn btn-primary">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
+            </svg>
+            Create Thread
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+  <script type="text/javascript" src="{% static 'plugins/js/ace.js' %}"></script>
+  <script type="text/javascript" src="{% static 'plugins/js/mode-markdown.js' %}"></script>
+  <script type="text/javascript" src="{% static 'plugins/js/ext-language_tools.js' %}"></script>
+  <script type="text/javascript" src="{% static 'plugins/js/theme-github.js' %}"></script>
+  <script type="text/javascript" src="{% static 'plugins/js/typo.js' %}"></script>
+  <script type="text/javascript" src="{% static 'plugins/js/spellcheck.js' %}"></script>
+  <script type="text/javascript" src="{% static 'plugins/js/highlight.min.js' %}"></script>
+  <script type="text/javascript" src="{% static 'plugins/js/emojis.min.js' %}"></script>
+  <script type="text/javascript" src="{% static 'martor/js/martor.bootstrap.min.js' %}"></script>
+{% endblock %}

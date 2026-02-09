@@ -1,0 +1,139 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}Threads{% endblock %}
+
+{% block link %}
+<!-- Tailwind CSS -->
+<script src="https://cdn.tailwindcss.com"></script>
+<!-- DaisyUI -->
+<link href="https://cdn.jsdelivr.net/npm/daisyui@4.4.19/dist/full.min.css" rel="stylesheet" type="text/css" />
+{% endblock %}
+
+{% block content %}
+<div class="container mx-auto px-4 py-8 max-w-6xl">
+  <!-- Header -->
+  <div class="flex justify-between items-center mb-6">
+    <div>
+      <h1 class="text-4xl font-bold text-white mb-2">Discussion Threads</h1>
+      <p class="text-gray-400">Browse and participate in community discussions</p>
+    </div>
+    <a href="{% url 'thread-create' %}" class="btn btn-primary">
+      <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
+      </svg>
+      New Thread
+    </a>
+  </div>
+
+  <!-- Filters -->
+  <div class="card bg-base-200 shadow-xl mb-6">
+    <div class="card-body">
+      <div class="flex flex-wrap gap-4 items-center">
+        <div class="form-control">
+          <label class="label">
+            <span class="label-text text-white">Filter by Category</span>
+          </label>
+          <select class="select select-bordered w-full max-w-xs">
+            <option value="">All Categories</option>
+            {% for category in categories %}
+            <option value="{{ category.id }}">{{ category.name }}</option>
+            {% endfor %}
+          </select>
+        </div>
+        <div class="form-control flex-1">
+          <label class="label">
+            <span class="label-text text-white">Search</span>
+          </label>
+          <input type="text" placeholder="Search threads..." class="input input-bordered w-full" />
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Threads List -->
+  <div class="space-y-4">
+    {% for thread in threads %}
+    <div class="card bg-base-200 shadow-xl hover:shadow-2xl transition-shadow cursor-pointer" onclick="window.location.href='{% url 'thread-detail' thread.pk %}'">
+      <div class="card-body">
+        <div class="flex justify-between items-start">
+          <div class="flex-1">
+            <div class="flex items-center gap-3 mb-2">
+              <h2 class="card-title text-white text-xl hover:text-primary transition-colors">
+                {{ thread.title }}
+              </h2>
+              {% if thread.locked %}
+              <div class="badge badge-error gap-2">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
+                </svg>
+                Locked
+              </div>
+              {% endif %}
+              {% if thread.category %}
+              <div class="badge badge-outline">{{ thread.category.name }}</div>
+              {% endif %}
+            </div>
+            <p class="text-gray-300 line-clamp-2 mb-4">
+              {{ thread.content|truncatewords:30 }}
+            </p>
+            <div class="flex items-center gap-4 text-sm text-gray-400">
+              <div class="flex items-center gap-2">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+                </svg>
+                <span>{% if thread.author %}{{ thread.author.username }}{% else %}Anonymous{% endif %}</span>
+              </div>
+              <div class="flex items-center gap-2">
+                  <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" />
+                </svg>
+                <span>{{ reply_count|default:"0" }} replies</span>
+              </div>
+              <div class="flex items-center gap-2">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                </svg>
+                <span>{{ thread.created_at|date:"M d, Y" }}</span>
+              </div>
+            </div>
+          </div>
+          {% if thread.resources.all %}
+          <div class="badge badge-secondary">Resources</div>
+          {% endif %}
+        </div>
+      </div>
+    </div>
+    {% empty %}
+    <div class="card bg-base-200 shadow-xl">
+      <div class="card-body text-center">
+        <svg xmlns="http://www.w3.org/2000/svg" class="h-16 w-16 mx-auto text-gray-500 mb-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" />
+        </svg>
+        <h3 class="text-xl font-semibold text-white mb-2">No threads yet</h3>
+        <p class="text-gray-400 mb-4">Be the first to start a discussion!</p>
+        <a href="{% url 'thread-create' %}" class="btn btn-primary">Create First Thread</a>
+      </div>
+    </div>
+    {% endfor %}
+  </div>
+
+  <!-- Pagination -->
+  {% if is_paginated %}
+  <div class="flex justify-center mt-8">
+    <div class="join">
+      {% if page_obj.has_previous %}
+      <a href="?page=1" class="join-item btn">««</a>
+      <a href="?page={{ page_obj.previous_page_number }}" class="join-item btn">«</a>
+      {% endif %}
+      <button class="join-item btn btn-active">{{ page_obj.number }}</button>
+      {% if page_obj.has_next %}
+      <a href="?page={{ page_obj.next_page_number }}" class="join-item btn">»</a>
+      <a href="?page={{ page_obj.paginator.num_pages }}" class="join-item btn">»»</a>
+      {% endif %}
+    </div>
+  </div>
+  {% endif %}
+</div>
+{% endblock %}
+
