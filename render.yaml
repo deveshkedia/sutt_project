@@ -1,0 +1,22 @@
+databases:
+  - name: sutt_project
+    plan: free
+    databaseName: sutt_project
+    user: sutt_user
+
+services:
+  - type: web
+    plan: free
+    name: sutt_project
+    runtime: python
+    buildCommand: "./build.sh"
+    startCommand: "python -m gunicorn sutt_project.asgi:application -k uvicorn.workers.UvicornWorker"
+    envVars:
+      - key: DATABASE_URL
+        fromDatabase:
+          name: sutt_project
+          property: connectionString
+      - key: SECRET_KEY
+        generateValue: true
+      - key: WEB_CONCURRENCY
+        value: 4

@@ -38,6 +38,23 @@
           </label>
         </div>
 
+        
+        <!-- Content Field -->
+        <div class="form-control w-full">
+          <label class="label">
+            <span class="label-text font-semibold">Content</span>
+            <span class="label-text-alt text-error">*</span>
+          </label>
+          <textarea 
+          name="content" 
+          class="textarea textarea-bordered w-full h-48 focus:textarea-primary" 
+          placeholder="Write your thread content here..."
+          required
+          ></textarea>
+          <label class="label">
+            <span class="label-text-alt">Share your thoughts, questions, or ideas</span>
+          </label>
+        </div>
         <!-- Category Field -->
         <div class="form-control w-full">
           <label class="label">
@@ -54,23 +71,26 @@
           </label>
         </div>
 
-        <!-- Content Field -->
-        <div class="form-control w-full">
-          <label class="label">
-            <span class="label-text font-semibold">Content</span>
-            <span class="label-text-alt text-error">*</span>
-          </label>
-          <textarea 
-            name="content" 
-            class="textarea textarea-bordered w-full h-48 focus:textarea-primary" 
-            placeholder="Write your thread content here..."
-            required
-          ></textarea>
-          <label class="label">
-            <span class="label-text-alt">Share your thoughts, questions, or ideas</span>
-          </label>
-        </div>
+           <!-- Tags Field -->
+        <div class="form-control">
+  <label class="label">
+    <span class="label-text font-semibold">Tags</span>
+  </label>
 
+  <!-- Hidden input that Django reads -->
+  <input type="hidden" name="tags" id="tags-input">
+
+  <!-- Tag buttons -->
+  <div class="flex flex-wrap gap-2" id="tag-container">
+    <button type="button" class="btn btn-outline btn-sm tag-btn" data-tag="midsem">#midsem</button>
+    <button type="button" class="btn btn-outline btn-sm tag-btn" data-tag="quiz">#quiz</button>
+    <button type="button" class="btn btn-outline btn-sm tag-btn" data-tag="urgent">#urgent</button>
+    <button type="button" class="btn btn-outline btn-sm tag-btn" data-tag="notes">#notes</button>
+    <button type="button" class="btn btn-outline btn-sm tag-btn" data-tag="assignment">#assignment</button>
+  </div>
+</div>
+
+        
         <!-- Resources Field -->
         <div class="form-control w-full">
           <label class="label">
@@ -142,4 +162,27 @@
   <script type="text/javascript" src="{% static 'plugins/js/highlight.min.js' %}"></script>
   <script type="text/javascript" src="{% static 'plugins/js/emojis.min.js' %}"></script>
   <script type="text/javascript" src="{% static 'martor/js/martor.bootstrap.min.js' %}"></script>
+  <script>
+  const selectedTags = new Set();
+  const tagInput = document.getElementById("tags-input");
+
+  document.querySelectorAll(".tag-btn").forEach(btn => {
+    btn.addEventListener("click", () => {
+      const tag = btn.dataset.tag;
+
+      if (selectedTags.has(tag)) {
+        selectedTags.delete(tag);
+        btn.classList.remove("btn-primary");
+        btn.classList.add("btn-outline");
+      } else {
+        selectedTags.add(tag);
+        btn.classList.remove("btn-outline");
+        btn.classList.add("btn-primary");
+      }
+
+      tagInput.value = Array.from(selectedTags).join(",");
+    });
+  });
+</script>
+
 {% endblock %}

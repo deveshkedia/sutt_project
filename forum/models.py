@@ -1,6 +1,7 @@
 from django.db import models
 from martor.models import MartorField
 
+
 # Create your models here.
 class Course(models.Model):
   name = models.CharField(max_length=100)
@@ -35,6 +36,7 @@ class Thread(models.Model):
   likes_count = models.PositiveIntegerField(default=0)
   created_at = models.DateTimeField(auto_now_add=True)
   updated_at = models.DateTimeField(auto_now=True)
+  tags = models.ManyToManyField('Tags', blank=True)
   
   def __str__(self):
     return self.title
@@ -57,5 +59,11 @@ class Likes(models.Model):
   
   class Meta:
     unique_together = ('thread', 'user')
+    
+class Tags(models.Model):
+  name = models.CharField(max_length=50, unique=True)
+  
+  def __str__(self):
+    return self.name
     
 # make a function to count the number of likes for a thread and update the likes_count field in Thread model
