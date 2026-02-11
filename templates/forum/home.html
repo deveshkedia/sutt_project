@@ -1,11 +1,104 @@
 {% extends "base.html" %} {% block title %}Forum Home{% endblock %}
 {% block content %}
-<div class="container mx-auto px-4 py-8 max-w-4xl">
-  <div class="text-center">
-    <h1 class="text-4xl font-bold mb-4 text-white">Welcome to the StudyHub Forum</h1>
-    <p class="text-lg text-gray-300">
-      Engage in discussions, join study rooms, and connect with fellow students!
-    </p>
+{% load static %}
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Your Forum</title>
+  <link href="{% static 'css/output.css' %}" rel="stylesheet">
+</head>
+<body class="bg-base-100 text-base-content">
+
+<!-- Hero Section -->
+<section class="hero min-h-[80vh] bg-base-100">
+  <div class="hero-content text-center max-w-4xl">
+    <div>
+      <h1 class="text-5xl font-bold">
+        Ask. Discuss. Grow.
+      </h1>
+      <p class="py-6 text-lg opacity-80">
+        A modern discussion platform built for meaningful conversations,
+        smart search, and clean collaboration.
+      </p>
+      <div class="flex justify-center gap-4">
+        <a href="{% url 'thread-list' %}" class="btn btn-primary btn-lg">
+          Explore Threads
+        </a>
+        <a href="{% url 'thread-create' %}" class="btn btn-outline btn-lg">
+          Start a Discussion
+        </a>
+      </div>
+    </div>
   </div>
-</div>
+</section>
+
+<!-- Features Section -->
+<section class="py-20 bg-base-200">
+  <div class="max-w-6xl mx-auto px-6">
+    <h2 class="text-3xl font-bold text-center mb-12">
+      Why Use Sutt?
+    </h2>
+
+    <div class="grid md:grid-cols-3 gap-8">
+
+      <div class="card bg-base-100 shadow-xl">
+        <div class="card-body">
+          <h3 class="card-title">⚡ Smart Search</h3>
+          <p>
+            Fuzzy search powered by PostgreSQL trigram similarity.
+            Find threads even with typos.
+          </p>
+        </div>
+      </div>
+
+      <div class="card bg-base-100 shadow-xl">
+        <div class="card-body">
+          <h3 class="card-title">🔥 Popular Ranking</h3>
+          <p>
+            Sort threads by latest or popularity.
+            Discover what people actually care about.
+          </p>
+        </div>
+      </div>
+
+      <div class="card bg-base-100 shadow-xl">
+        <div class="card-body">
+          <h3 class="card-title">🏷️ Tag System</h3>
+          <p>
+            Organize discussions with powerful tagging.
+            Filter topics instantly.
+          </p>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</section>
+{% if not user %}
+<!-- CTA Section -->
+<section class="py-20 text-center">
+  <h2 class="text-4xl font-bold mb-6">
+    Ready to join the conversation?
+  </h2>
+  <a href="{% url 'account_signup' %}" class="btn btn-primary btn-lg">
+    Create Your Account
+  </a>
+</section>
+
+{% endif %}
+
+<!-- Footer -->
+<footer class="footer footer-center p-10 bg-base-200 text-base-content">
+  <div>
+    <p class="font-bold text-lg">Sutt Forum</p>
+    <p class="opacity-70">Built with Django + DaisyUI</p>
+    <p class="opacity-50">© 2026 All rights reserved</p>
+  </div>
+</footer>
+
+</body>
+</html>
+
 {% endblock %}

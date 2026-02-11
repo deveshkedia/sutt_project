@@ -60,8 +60,8 @@
           <label class="label">
             <span class="label-text font-semibold">Category</span>
           </label>
-          <select name="category" class="select select-bordered w-full focus:select-primary">
-            <option value="">Select a category (optional)</option>
+          <select name="category" class="select select-bordered w-full focus:select-primary" required>
+            <option value="">Select a category</option>
             {% for category in categories %}
             <option value="{{ category.id }}">{{ category.name }}</option>
             {% endfor %}

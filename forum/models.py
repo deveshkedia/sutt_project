@@ -66,4 +66,32 @@ class Tags(models.Model):
   def __str__(self):
     return self.name
     
-# make a function to count the number of likes for a thread and update the likes_count field in Thread model
+class Report(models.Model):
+  REASON_CHOICES = [
+    ('spam', 'Spam'),
+    ('inappropriate', 'Inappropriate Content'),
+    ('harassment', 'Harassment'),
+    ('misinformation', 'Misinformation'),
+    ('copyright', 'Copyright Violation'),
+    ('other', 'Other'),
+  ]
+  
+  STATUS_CHOICES = [
+    ('pending', 'Pending'),
+    ('reviewed', 'Reviewed'),
+    ('resolved', 'Resolved'),
+  ]
+  
+  thread = models.ForeignKey(Thread, on_delete=models.CASCADE, related_name='reports')
+  reporter = models.ForeignKey('auth.User', on_delete=models.SET_NULL, null=True)
+  reason = models.CharField(max_length=50, choices=REASON_CHOICES)
+  description = models.TextField()
+  status = models.CharField(max_length=20, default='pending', choices=STATUS_CHOICES)
+  created_at = models.DateTimeField(auto_now_add=True)
+  updated_at = models.DateTimeField(auto_now=True)
+  
+  def __str__(self):
+    return f"Report on {self.thread.title} by {self.reporter.username}"
+  
+  class Meta:
+    unique_together = ('thread', 'reporter')

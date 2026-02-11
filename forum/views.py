@@ -4,12 +4,34 @@ from django.urls import reverse_lazy
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.db.models import Count, Q
-from .models import Category, Resource, Tags, Thread, Replies,Likes
+from .models import Category, Resource, Tags, Thread, Replies, Likes, Report
 from django.contrib.postgres.search import TrigramSimilarity
 
 # Create your views here.
 def forum_home(request):
     return render(request, 'forum/home.html')
+
+class ReportView(LoginRequiredMixin, CreateView):
+    model = Report
+    login_url  = '/accounts/login/'
+    template_name = 'forum/threads/report.html'
+    fields = ['reason', 'description']
+    
+    def form_valid(self, form):
+        thread_id = self.kwargs['thread_id']
+        thread = get_object_or_404(Thread, id=thread_id)
+        
+        existing_report = Report.objects.filter(thread=thread, reporter=self.request.user).exists()
+        if existing_report:
+            form.add_error(None, "You have already reported this thread.")
+            return self.form_invalid(form)
+        
+        report = form.save(commit=False)
+        report.thread = thread
+        report.reporter = self.request.user
+        report.save()
+        
+        return redirect('thread-detail', pk=thread_id)
 
 class ThreadView(LoginRequiredMixin,CreateView):
     model = Thread
@@ -49,8 +71,12 @@ class ThreadListView(ListView):
     def get_queryset(self):
         queryset = Thread.objects.annotate().select_related('author', 'category').prefetch_related('resources')
         q = self.request.GET.get("q")
+        category=self.request.GET.get("category")
         if q:
             queryset = queryset.annotate(similarity=TrigramSimilarity("title", q) + TrigramSimilarity("content", q)).filter(similarity__gt=0.1).order_by("-similarity")
+        if category:
+            queryset = queryset.filter(category__id=category)
+
         return queryset
             
     
@@ -112,3 +138,93 @@ def like_thread(request, pk):
         thread.likes_count = thread.likes_count + 1
     thread.save()
     return redirect('thread-detail', pk=pk)
+
+@login_required
+def report_thread(request, thread_id):
+    thread = get_object_or_404(Thread, id=thread_id)
+    
+    # Check if user has already reported this thread
+    existing_report = Report.objects.filter(thread=thread, reporter=request.user).exists()
+    
+    if request.method == 'POST':
+        if existing_report:
+            return render(request, 'forum/threads/report.html', {
+                'thread': thread,
+                'error': 'You have already reported this thread.'
+            })
+        
+        reason = request.POST.get('reason')
+        description = request.POST.get('description')
+        
+        if reason and description:
+            Report.objects.create(
+                thread=thread,
+                reporter=request.user,
+                reason=reason,
+                description=description
+            )
+            return redirect('thread-detail', pk=thread_id)
+    
+    return render(request, 'forum/reports/create.html', {
+        'thread': thread,
+        'existing_report': existing_report,
+        'reason_choices': Report.REASON_CHOICES
+    })
+
+class ReportListView(LoginRequiredMixin, ListView):
+    model = Report
+    template_name = 'forum/reports/list.html'
+    context_object_name = 'reports'
+    paginate_by = 10
+    ordering = ['-created_at']
+    login_url = '/accounts/login/'
+    
+    def get_queryset(self):
+        if not self.request.user.groups.filter(name='Moderator').exists():
+            return Report.objects.none()
+        
+        queryset = Report.objects.select_related('thread', 'reporter').order_by('-created_at')
+        status = self.request.GET.get('status')
+        reason = self.request.GET.get('reason')
+        
+        if status:
+            queryset = queryset.filter(status=status)
+        if reason:
+            queryset = queryset.filter(reason=reason)
+        
+        return queryset
+    
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['status_choices'] = Report.STATUS_CHOICES
+        context['reason_choices'] = Report.REASON_CHOICES
+        context['selected_status'] = self.request.GET.get('status', '')
+        context['selected_reason'] = self.request.GET.get('reason', '')
+        return context
+
+@login_required
+def update_report_status(request, report_id, status):
+    """Update the status of a report"""
+    # Check if user is moderator or staff
+    if not (request.user.is_staff or request.user.groups.filter(name='Moderator').exists()):
+        return redirect('report-list')
+    
+    report = get_object_or_404(Report, id=report_id)
+    
+    # Validate status
+    valid_statuses = [choice[0] for choice in Report.STATUS_CHOICES]
+    if status in valid_statuses:
+        report.status = status
+        report.save()
+    
+    return redirect('report-list')
+
+@login_required
+def review_report(request, report_id):
+    """Mark a report as reviewed"""
+    return update_report_status(request, report_id, 'reviewed')
+
+@login_required
+def resolve_report(request, report_id):
+    """Mark a report as resolved"""
+    return update_report_status(request, report_id, 'resolved')

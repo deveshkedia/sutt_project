@@ -1,0 +1,191 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}Reports{% endblock %}
+
+{% block link %}
+<!-- Tailwind CSS -->
+<script src="https://cdn.tailwindcss.com"></script>
+<!-- DaisyUI -->
+<link href="https://cdn.jsdelivr.net/npm/daisyui@4.4.19/dist/full.min.css" rel="stylesheet" type="text/css" />
+{% endblock %}
+
+{% block content %}
+<div class="container mx-auto px-4 py-8 max-w-6xl">
+  <!-- Header -->
+  <div class="flex justify-between items-center mb-6">
+    <div>
+      <h1 class="text-4xl font-bold text-white mb-2">Thread Reports</h1>
+      <p class="text-gray-400">Manage reported threads and take action</p>
+    </div>
+    <a href="{% url 'thread-list' %}" class="btn btn-ghost">
+      <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18" />
+      </svg>
+      Back to Threads
+    </a>
+  </div>
+
+  <!-- Filters -->
+  <div class="card bg-base-200 shadow-xl mb-6">
+    <div class="card-body">
+      <form method="GET" class="flex flex-wrap gap-4 items-end w-full">
+        <!-- Status Filter -->
+        <div class="form-control">
+          <label class="label">
+            <span class="label-text text-white">Filter by Status</span>
+          </label>
+          <select name="status" class="select select-bordered w-full max-w-xs" onchange="this.form.submit()">
+            <option value="">All Status</option>
+            {% for value, label in status_choices %}
+            <option value="{{ value }}" {% if value == selected_status %}selected{% endif %}>{{ label }}</option>
+            {% endfor %}
+          </select>
+        </div>
+
+        <!-- Reason Filter -->
+        <div class="form-control">
+          <label class="label">
+            <span class="label-text text-white">Filter by Reason</span>
+          </label>
+          <select name="reason" class="select select-bordered w-full max-w-xs" onchange="this.form.submit()">
+            <option value="">All Reasons</option>
+            {% for value, label in reason_choices %}
+            <option value="{{ value }}" {% if value == selected_reason %}selected{% endif %}>{{ label }}</option>
+            {% endfor %}
+          </select>
+        </div>
+
+        <!-- Reset Button -->
+        {% if selected_status or selected_reason %}
+        <a href="{% url 'report-list' %}" class="btn btn-outline">Reset Filters</a>
+        {% endif %}
+      </form>
+    </div>
+  </div>
+
+  <!-- Reports List -->
+  <div class="space-y-4">
+    {% for report in reports %}
+    <div class="card bg-base-200 shadow-xl hover:shadow-2xl transition-shadow">
+      <div class="card-body">
+        <div class="flex justify-between items-start gap-4">
+          <div class="flex-1">
+            <!-- Thread Title -->
+            <h2 class="card-title text-xl text-white mb-2">
+              {{ report.thread.title }}
+              <div class="badge badge-info">{{ report.get_reason_display }}</div>
+            </h2>
+
+            <!-- Report Status -->
+            <div class="mb-3">
+              {% if report.status == 'pending' %}
+              <div class="badge badge-warning">{{ report.get_status_display }}</div>
+              {% elif report.status == 'reviewed' %}
+              <div class="badge badge-info">{{ report.get_status_display }}</div>
+              {% else %}
+              <div class="badge badge-success">{{ report.get_status_display }}</div>
+              {% endif %}
+            </div>
+
+            <!-- Report Description -->
+            <p class="text-gray-300 mb-4">
+              <span class="font-semibold text-white">Report Description:</span><br>
+              {{ report.description }}
+            </p>
+
+            <!-- Reporter & Date Info -->
+            <div class="flex flex-wrap gap-4 text-sm text-gray-400 mb-4">
+              <div class="flex items-center gap-2">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+                </svg>
+                <span>Reported by <strong>{{ report.reporter.username }}</strong></span>
+              </div>
+              <div class="flex items-center gap-2">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                </svg>
+                <span>{{ report.created_at|date:"F d, Y g:i A" }}</span>
+              </div>
+              {% if report.updated_at != report.created_at %}
+              <div class="flex items-center gap-2">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A9.001 9.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.968 8.968 0 01-15.348-2.364" />
+                </svg>
+                <span>Updated: {{ report.updated_at|date:"F d, Y" }}</span>
+              </div>
+              {% endif %}
+            </div>
+
+            <!-- Thread Author Info -->
+            <div class="bg-base-300 rounded p-3 mb-4">
+              <p class="text-sm text-gray-400">
+                <span class="font-semibold text-white">Original Thread Author:</span> 
+                {% if report.thread.author %}{{ report.thread.author.username }}{% else %}Anonymous{% endif %} 
+                <span class="text-gray-500">(Posted {{ report.thread.created_at|date:"F d, Y" }})</span>
+              </p>
+            </div>
+          </div>
+
+          <!-- Actions -->
+          <div class="flex flex-col gap-2">
+            <a href="{% url 'thread-detail' report.thread.pk %}" class="btn btn-sm btn-primary" target="_blank">
+              <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
+              </svg>
+              View Thread
+            </a>
+
+            {% if report.status == 'pending' %}
+            <a href="{% url 'report-review' report.id %}" class="btn btn-sm btn-info">
+              <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+              </svg>
+              Mark Reviewed
+            </a>
+            {% endif %}
+
+            {% if report.status == 'reviewed' %}
+            <a href="{% url 'report-resolve' report.id %}" class="btn btn-sm btn-success">
+              <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
+              </svg>
+              Mark Resolved
+            </a>
+            {% endif %}
+          </div>
+        </div>
+      </div>
+    </div>
+    {% empty %}
+    <div class="card bg-base-200 shadow-xl">
+      <div class="card-body text-center">
+        <svg xmlns="http://www.w3.org/2000/svg" class="h-16 w-16 mx-auto text-gray-500 mb-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+        </svg>
+        <h3 class="text-xl font-semibold text-white mb-2">No Reports Found</h3>
+        <p class="text-gray-400">There are no reports matching your filters.</p>
+      </div>
+    </div>
+    {% endfor %}
+  </div>
+
+  <!-- Pagination -->
+  {% if is_paginated %}
+  <div class="flex justify-center mt-8">
+    <div class="join">
+      {% if page_obj.has_previous %}
+      <a href="?page=1" class="join-item btn">««</a>
+      <a href="?page={{ page_obj.previous_page_number }}" class="join-item btn">«</a>
+      {% endif %}
+      <button class="join-item btn btn-active">{{ page_obj.number }}</button>
+      {% if page_obj.has_next %}
+      <a href="?page={{ page_obj.next_page_number }}" class="join-item btn">»</a>
+      <a href="?page={{ page_obj.paginator.num_pages }}" class="join-item btn">»»</a>
+      {% endif %}
+    </div>
+  </div>
+  {% endif %}
+</div>
+{% endblock %}

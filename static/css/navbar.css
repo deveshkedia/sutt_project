@@ -65,7 +65,7 @@ body {
 .navbar-left {
   display: flex;
   align-items: center;
-  gap: 2rem;
+  gap: 5rem;
 }
 
 .brand {
@@ -101,7 +101,7 @@ body {
 .nav-links {
   display: flex;
   align-items: center;
-  gap: 1.5rem;
+  gap: 3rem;
 }
 
 .nav-link {
@@ -173,7 +173,7 @@ body {
 .navbar-right {
   display: flex;
   align-items: center;
-  gap: 1rem;
+  gap: 3rem;
 }
 
 .btn-new-thread {

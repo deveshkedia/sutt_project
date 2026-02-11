@@ -29,34 +29,33 @@
   <!-- Filters -->
   <div class="card bg-base-200 shadow-xl mb-6">
     <div class="card-body">
-      <div class="flex flex-wrap gap-4 items-center">
+      <form method="GET" class="flex flex-wrap gap-4 items-end w-full">
         <div class="form-control">
           <label class="label">
             <span class="label-text text-white">Filter by Category</span>
           </label>
-          <select class="select select-bordered w-full max-w-xs">
+          <select class="select select-bordered w-full max-w-xs" name="category">
             <option value="">All Categories</option>
             {% for category in categories %}
             <option value="{{ category.id }}">{{ category.name }}</option>
             {% endfor %}
           </select>
         </div>
-        <div class="form-control flex-1">
-          <form method="GET">
+        <div class="form-control flex-1 min-w-xs">
           <label class="label">
             <span class="label-text text-white">Search</span>
           </label>
-          <input type="text" placeholder="Search threads..." class="input input-bordered w-full" name="q" value="{{ request.GET.q }}" />
+          <div class="flex gap-2">
+            <input type="text" placeholder="Search threads..." class="input input-bordered flex-1" name="q" value="{{ request.GET.q }}" />
+            <button type="submit" class="btn btn-primary">
+              <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+              </svg>
+              Search
+            </button>
+          </div>
         </div>
-         <button type="submit" class="btn btn-primary">
-      <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
-      </svg>
-      Search
-    </button>
-      </div>
       </form>
-    </div>
   </div>
 
   <!-- Threads List -->
@@ -85,6 +84,13 @@
             <p class="text-gray-300 line-clamp-2 mb-4">
               {{ thread.content|truncatewords:30 }}
             </p>
+            {% if thread.tags.all %}
+            <div class="flex flex-wrap gap-2 mb-4">
+              {% for tag in thread.tags.all %}
+              <div class="badge badge-info">{{ tag.name }}</div>
+              {% endfor %}
+            </div>
+            {% endif %}
             <div class="flex items-center gap-4 text-sm text-gray-400">
               <div class="flex items-center gap-2">
                 <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -106,9 +112,17 @@
               </div>
             </div>
           </div>
-          {% if thread.resources.all %}
-          <div class="badge badge-secondary">Resources</div>
-          {% endif %}
+          <div class="flex gap-2 items-center">
+            {% if thread.resources.all %}
+            <div class="badge badge-secondary">Resources</div>
+            {% endif %}
+            <button class="btn btn-ghost btn-xs" onclick="event.stopPropagation(); window.location.href='{% url 'thread-report' thread.id %}'">
+              <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4v2m0 5v1m0-11v1M4.22 4.22a9 9 0 1112.56 12.56M4.22 4.22l1.415 1.415m8.908-1.415l1.414 1.414m-3.121 3.12l1.414 1.415m-3.12-1.414l1.414-1.414" />
+              </svg>
+              Report
+            </button>
+          </div>
         </div>
       </div>
     </div>

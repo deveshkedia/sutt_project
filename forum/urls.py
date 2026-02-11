@@ -7,6 +7,10 @@ urlpatterns = [
   path("threads/create",views.ThreadView.as_view(), name="thread-create"),
   path("threads/<int:pk>/",views.ThreadDetailView.as_view(), name="thread-detail"),
   path("threads/<int:pk>/like",views.like_thread, name="thread-like"),
+  path("threads/<int:thread_id>/report/",views.report_thread, name="thread-report"),
+  path("reports/",views.ReportListView.as_view(), name="report-list"),
+  path("reports/<int:report_id>/review/",views.review_report, name="report-review"),
+  path("reports/<int:report_id>/resolve/",views.resolve_report, name="report-resolve"),
   path("threads/<int:thread_id>/reply/",views.reply_to_thread, name="thread-reply"),
   path("replies/<int:reply_id>/reply/delete",views.delete_reply, name="reply-delete"),
 ]
