@@ -106,19 +106,6 @@ if os.getenv("ENV") == "production":
         )
     }
 else:
-    # DATABASES = {
-    #     "default": {
-    #         "ENGINE": "django.db.backends.postgresql",
-    #         "NAME": "sutt",
-    #         "USER": "sutt_user",
-    #         "PASSWORD": "5MpoqwlUevmqoyNQwKIyBeZmKswp9aeM",
-    #         "HOST": "dpg-d65i5isr85hc73e54seg-a.oregon-postgres.render.com",
-    #         "PORT": "5432",
-    #         "OPTIONS": {
-    #             "sslmode": "require",
-    #         },
-    #     }
-    # }
     DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.sqlite3',

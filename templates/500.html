@@ -1,0 +1,73 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}Server Error{% endblock %}
+
+{% block link %}
+<!-- Tailwind CSS -->
+<script src="https://cdn.tailwindcss.com"></script>
+<!-- DaisyUI -->
+<link href="https://cdn.jsdelivr.net/npm/daisyui@4.4.19/dist/full.min.css" rel="stylesheet" type="text/css" />
+{% endblock %}
+
+{% block content %}
+<div class="flex items-center justify-center min-h-[calc(100vh-200px)]">
+  <div class="text-center">
+    <!-- 500 Illustration -->
+    <div class="mb-8">
+      <div class="text-9xl font-bold text-error opacity-10 mb-4">500</div>
+      <svg xmlns="http://www.w3.org/2000/svg" class="h-32 w-32 mx-auto text-gray-500 mb-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4v.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+      </svg>
+    </div>
+
+    <!-- Error Message -->
+    <h1 class="text-5xl font-bold text-white mb-4">Server Error</h1>
+    <p class="text-xl text-gray-400 mb-8">Something went wrong on our end. Our team has been notified and is working to fix the issue.</p>
+
+    <!-- Error Details -->
+    <div class="bg-base-200 rounded-lg p-6 mb-8 inline-block text-left">
+      <p class="text-gray-300">
+        <span class="font-semibold text-white">Error Code:</span> <span class="text-error">500 Internal Server Error</span>
+      </p>
+      <p class="text-gray-300 mt-2">
+        <span class="font-semibold text-white">Status:</span> <span class="text-warning">We're investigating the issue</span>
+      </p>
+      <p class="text-gray-300 mt-2">
+        <span class="font-semibold text-white">What to do:</span> <span class="text-gray-400">Please try again later or contact support</span>
+      </p>
+    </div>
+
+    <!-- Alert Box -->
+    <div class="alert alert-error mb-8 inline-block max-w-md">
+      <svg xmlns="http://www.w3.org/2000/svg" class="stroke-current shrink-0 h-6 w-6" fill="none" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4v2m0 5v1m0-11v1M4.22 4.22a9 9 0 1112.56 12.56M4.22 4.22l1.414 1.414m8.908-1.414l1.414 1.414m-3.12 3.12l1.414 1.415m-3.12-1.414l1.414-1.414"></path>
+      </svg>
+      <span>An unexpected error occurred. Our support team has been notified.</span>
+    </div>
+
+    <!-- Action Buttons -->
+    <div class="flex flex-col sm:flex-row gap-4 justify-center">
+      <a href="{% url 'forum-home' %}" class="btn btn-primary">
+        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-3m0 0l7-4 7 4M5 9v10a1 1 0 001 1h12a1 1 0 001-1V9m-9 11l4-1m-4 1l-4 1m-4-11l2 3" />
+        </svg>
+        Go to Home
+      </a>
+      <button onclick="location.reload()" class="btn btn-ghost">
+        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A9.001 9.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.968 8.968 0 01-15.348-2.364" />
+        </svg>
+        Refresh Page
+      </button>
+      <button onclick="history.back()" class="btn btn-outline">
+        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18" />
+        </svg>
+        Go Back
+      </button>
+    </div>
+
+  </div>
+</div>
+{% endblock %}

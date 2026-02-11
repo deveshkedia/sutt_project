@@ -38,7 +38,7 @@ class ThreadView(LoginRequiredMixin,CreateView):
     login_url  = '/accounts/login/'
     template_name = 'forum/threads/create.html'
     success_url = reverse_lazy('thread-list')
-    fields = ['title', 'content', 'category', 'resources']
+    fields = ['title', 'content', 'category']
     
     def form_valid(self,form):
         thread = form.save(commit=False)
@@ -56,7 +56,6 @@ class ThreadView(LoginRequiredMixin,CreateView):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context['categories'] = Category.objects.all()
-        context['resources'] = Resource.objects.all()
         return context
 
         
@@ -68,7 +67,7 @@ class ThreadListView(ListView):
     paginate_by = 10
     ordering = ['-created_at']
     def get_queryset(self):
-        queryset = Thread.objects.annotate().select_related('author', 'category').prefetch_related('resources')
+        queryset = Thread.objects.annotate().select_related('author', 'category').prefetch_related('thread_resources')
         q = self.request.GET.get("q")
         category=self.request.GET.get("category")
         if q:
@@ -92,7 +91,7 @@ class ThreadDetailView(LoginRequiredMixin, DetailView):
     login_url = '/accounts/login/'
     
     def get_queryset(self):
-        return Thread.objects.select_related('author', 'category').prefetch_related('resources', 'thread_resources')
+        return Thread.objects.select_related('author', 'category').prefetch_related('thread_resources')
     
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)

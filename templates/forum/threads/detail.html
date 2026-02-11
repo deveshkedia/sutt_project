@@ -184,35 +184,6 @@
       </div>
       {% endif %}
 
-      <!-- Course Resources -->
-      {% if thread.resources.all %}
-      <div class="card bg-base-200 shadow-xl mb-6">
-        <div class="card-body">
-          <h3 class="text-lg font-semibold text-white mb-3">Related Course Resources</h3>
-          <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
-            {% for resource in thread.resources.all %}
-            <div class="card bg-base-300 shadow">
-              <div class="card-body p-4">
-                <div class="flex items-center gap-3">
-                  <div class="badge badge-primary">{{ resource.get_type_display }}</div>
-                  <div class="flex-1">
-                    <h4 class="font-semibold text-white">{{ resource.title }}</h4>
-                    <p class="text-xs text-gray-400">{{ resource.course.name }}</p>
-                  </div>
-                  <a href="{{ resource.url }}" target="_blank" class="btn btn-sm btn-primary">
-                    <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
-                    </svg>
-                  </a>
-                </div>
-              </div>
-            </div>
-            {% endfor %}
-          </div>
-        </div>
-      </div>
-      {% endif %}
-
       <div class="divider"></div>
       <!-- Actions -->
       <div class="flex justify-end gap-2">
