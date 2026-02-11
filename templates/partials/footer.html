@@ -1,6 +1,6 @@
 <footer class="footer">
   <div class="footer-container">
-    <div class="footer-content">
+    <div class="footer-content flex">
       <div class="footer-section">
         <h3>StudyHub</h3>
         <p>Your student discussion portal</p>
@@ -8,17 +8,8 @@
       <div class="footer-section">
         <h4>Quick Links</h4>
         <ul>
-          <li><a href="#">Home</a></li>
-          <li><a href="#">Threads</a></li>
-          <li><a href="#">Rooms</a></li>
-        </ul>
-      </div>
-      <div class="footer-section">
-        <h4>About</h4>
-        <ul>
-          <li><a href="#">About Us</a></li>
-          <li><a href="#">Contact</a></li>
-          <li><a href="#">Privacy Policy</a></li>
+          <li><a href="{% url 'forum-home' %}">Home</a></li>
+          <li><a href="{% url 'thread-list' %}">Threads</a></li>
         </ul>
       </div>
     </div>

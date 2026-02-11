@@ -11,15 +11,6 @@ class Course(models.Model):
   def __str__(self):
     return self.name
   
-class Resource(models.Model):
-  course = models.ForeignKey(Course, on_delete=models.CASCADE)
-  title = models.CharField(max_length=200)
-  type = models.CharField(max_length=100, choices=[('video', 'Video'), ('document', 'Document'), ('link', 'Link')])
-  url = models.URLField()
-  
-  def __str__(self):
-    return self.title
-  
 class Category(models.Model):
   name = models.CharField(max_length=100)
   
@@ -31,7 +22,6 @@ class Thread(models.Model):
   content = MartorField()
   author = models.ForeignKey('auth.User', on_delete=models.SET_NULL,null=True)
   category = models.ForeignKey(Category, on_delete=models.SET_NULL,null=True)
-  resources = models.ManyToManyField(Resource, blank=True)
   locked = models.BooleanField(default=False)
   likes_count = models.PositiveIntegerField(default=0)
   created_at = models.DateTimeField(auto_now_add=True)
@@ -95,3 +85,27 @@ class Report(models.Model):
   
   class Meta:
     unique_together = ('thread', 'reporter')
+
+class ThreadResource(models.Model):
+  FILE_TYPE_CHOICES = [
+    ('pdf', 'PDF'),
+    ('document', 'Document'),
+    ('image', 'Image'),
+    ('video', 'Video'),
+    ('audio', 'Audio'),
+    ('other', 'Other'),
+  ]
+  
+  thread = models.ForeignKey(Thread, on_delete=models.CASCADE, related_name='thread_resources')
+  title = models.CharField(max_length=200)
+  file = models.FileField(upload_to='thread_resources/%Y/%m/%d/')
+  file_type = models.CharField(max_length=50, choices=FILE_TYPE_CHOICES, default='other')
+  uploaded_by = models.ForeignKey('auth.User', on_delete=models.SET_NULL, null=True)
+  description = models.TextField(blank=True, null=True)
+  created_at = models.DateTimeField(auto_now_add=True)
+  
+  def __str__(self):
+    return f"{self.title} - {self.thread.title}"
+  
+  class Meta:
+    ordering = ['-created_at']

@@ -90,37 +90,6 @@
   </div>
 </div>
 
-        
-        <!-- Resources Field -->
-        <div class="form-control w-full">
-          <label class="label">
-            <span class="label-text font-semibold">Resources</span>
-          </label>
-          <div class="space-y-2 max-h-48 overflow-y-auto border border-base-300 rounded-lg p-4">
-            {% if resources %}
-              {% for resource in resources %}
-              <label class="label cursor-pointer justify-start gap-3 hover:bg-base-200 rounded-lg p-2">
-                <input 
-                  type="checkbox" 
-                  name="resources" 
-                  value="{{ resource.id }}" 
-                  class="checkbox checkbox-primary"
-                />
-                <div class="flex-1">
-                  <span class="label-text font-medium">{{ resource.title }}</span>
-                  <span class="label-text-alt block text-xs">{{ resource.get_type_display }} - {{ resource.course.name }}</span>
-                </div>
-              </label>
-              {% endfor %}
-            {% else %}
-              <p class="text-sm text-base-content/60">No resources available</p>
-            {% endif %}
-          </div>
-          <label class="label">
-            <span class="label-text-alt">Select relevant resources to attach to your thread</span>
-          </label>
-        </div>
-
         <!-- Locked Thread Option -->
         <div class="form-control">
           <label class="label cursor-pointer justify-start gap-3">

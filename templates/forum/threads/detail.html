@@ -80,36 +80,141 @@
         <div class="text-gray-300 whitespace-pre-wrap">{{ thread.content|safe_markdown }}</div>
       </div>
 
-      <!-- Resources -->
-      {% if thread.resources.all %}
+      <!-- Resources Section -->
       <div class="divider"></div>
-      <div>
-        <h3 class="text-lg font-semibold text-white mb-3">Attached Resources</h3>
-        <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
-          {% for resource in thread.resources.all %}
-          <div class="card bg-base-300 shadow">
-            <div class="card-body p-4">
-              <div class="flex items-center gap-3">
-                <div class="badge badge-primary">{{ resource.get_type_display }}</div>
-                <div class="flex-1">
-                  <h4 class="font-semibold text-white">{{ resource.title }}</h4>
-                  <p class="text-xs text-gray-400">{{ resource.course.name }}</p>
-                </div>
-                <a href="{{ resource.url }}" target="_blank" class="btn btn-sm btn-primary">
-                  <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
-                  </svg>
-                </a>
-              </div>
+      
+      <!-- Upload Resource Form (Only for thread author) -->
+      {% if is_author %}
+      <div class="card bg-base-200 shadow-xl mb-6">
+        <div class="card-body">
+          <h3 class="text-lg font-semibold text-white mb-4">Upload Resource</h3>
+          <form method="POST" action="{% url 'upload-resource' thread.id %}" enctype="multipart/form-data" class="space-y-4">
+            {% csrf_token %}
+            
+            <div class="form-control">
+              <label class="label">
+                <span class="label-text text-white">Resource Title *</span>
+              </label>
+              <input type="text" name="title" placeholder="Enter resource title" class="input input-bordered w-full" required />
             </div>
-          </div>
-          {% endfor %}
+
+            <div class="form-control">
+              <label class="label">
+                <span class="label-text text-white">File Type</span>
+              </label>
+              <select name="file_type" class="select select-bordered w-full">
+                <option value="pdf">PDF</option>
+                <option value="document">Document</option>
+                <option value="image">Image</option>
+                <option value="video">Video</option>
+                <option value="audio">Audio</option>
+                <option value="other">Other</option>
+              </select>
+            </div>
+
+            <div class="form-control">
+              <label class="label">
+                <span class="label-text text-white">Select File *</span>
+              </label>
+              <input type="file" name="file" class="file-input file-input-bordered w-full" required />
+              <label class="label">
+                <span class="label-text-alt text-gray-400">Max file size: 50MB</span>
+              </label>
+            </div>
+
+            <div class="form-control">
+              <label class="label">
+                <span class="label-text text-white">Description</span>
+              </label>
+              <textarea name="description" placeholder="Enter resource description (optional)" class="textarea textarea-bordered h-20 w-full"></textarea>
+            </div>
+
+            <div class="flex justify-end gap-2">
+              <button type="submit" class="btn btn-primary">Upload Resource</button>
+            </div>
+          </form>
         </div>
       </div>
       {% endif %}
 
-      <!-- Actions -->
+      <!-- Display Uploaded Resources -->
+      {% if thread_resources %}
+      <div class="card bg-base-200 shadow-xl mb-6">
+        <div class="card-body">
+          <h3 class="text-lg font-semibold text-white mb-4">Uploaded Resources</h3>
+          <div class="space-y-3">
+            {% for resource in thread_resources %}
+            <div class="card bg-base-300 shadow">
+              <div class="card-body p-4">
+                <div class="flex items-start justify-between gap-4">
+                  <div class="flex-1">
+                    <div class="flex items-center gap-2 mb-2">
+                      <div class="badge badge-info">{{ resource.get_file_type_display }}</div>
+                      <h4 class="font-semibold text-white">{{ resource.title }}</h4>
+                    </div>
+                    {% if resource.description %}
+                    <p class="text-sm text-gray-400 mb-2">{{ resource.description }}</p>
+                    {% endif %}
+                    <div class="text-xs text-gray-500">
+                      Uploaded by <span class="text-gray-400">{{ resource.uploaded_by.username }}</span> on {{ resource.created_at|date:"F d, Y g:i A" }}
+                    </div>
+                  </div>
+                  <div class="flex gap-2">
+                    <a href="{{ resource.file.url }}" download class="btn btn-sm btn-primary" target="_blank">
+                      <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
+                      </svg>
+                      Download
+                    </a>
+                    {% if is_author or resource.uploaded_by == user %}
+                    <a href="{% url 'delete-resource' resource.id %}" class="btn btn-sm btn-error" onclick="return confirm('Delete this resource?');">
+                      <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                      </svg>
+                      Delete
+                    </a>
+                    {% endif %}
+                  </div>
+                </div>
+              </div>
+            </div>
+            {% endfor %}
+          </div>
+        </div>
+      </div>
+      {% endif %}
+
+      <!-- Course Resources -->
+      {% if thread.resources.all %}
+      <div class="card bg-base-200 shadow-xl mb-6">
+        <div class="card-body">
+          <h3 class="text-lg font-semibold text-white mb-3">Related Course Resources</h3>
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
+            {% for resource in thread.resources.all %}
+            <div class="card bg-base-300 shadow">
+              <div class="card-body p-4">
+                <div class="flex items-center gap-3">
+                  <div class="badge badge-primary">{{ resource.get_type_display }}</div>
+                  <div class="flex-1">
+                    <h4 class="font-semibold text-white">{{ resource.title }}</h4>
+                    <p class="text-xs text-gray-400">{{ resource.course.name }}</p>
+                  </div>
+                  <a href="{{ resource.url }}" target="_blank" class="btn btn-sm btn-primary">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
+                    </svg>
+                  </a>
+                </div>
+              </div>
+            </div>
+            {% endfor %}
+          </div>
+        </div>
+      </div>
+      {% endif %}
+
       <div class="divider"></div>
+      <!-- Actions -->
       <div class="flex justify-end gap-2">
         <button class="btn btn-ghost btn-sm" onclick="window.location.href='{% url 'thread-like' thread.id %}'">
           {%if not liked%}
@@ -124,15 +229,9 @@
           Unlike
           {%endif%}
         </button>
-        <div>
-        {{thread.likes_count|default:0}} 
+        <div class="flex items-center px-3 text-sm font-semibold text-white">
+          {{thread.likes_count|default:0}}
         </div>
-        <button class="btn btn-ghost btn-sm">
-          <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8.684 13.342C8.886 12.938 9 12.482 9 12c0-.482-.114-.938-.316-1.342m0 2.684a3 3 0 110-2.684m0 2.684l6.632 3.316m-6.632-6l6.632-3.316m0 0a3 3 0 105.367-2.684 3 3 0 00-5.367 2.684zm0 9.316a3 3 0 105.368 2.684 3 3 0 00-5.368-2.684z" />
-          </svg>
-          Share
-        </button>
         <button class="btn btn-ghost btn-sm" onclick="window.location.href='{% url 'thread-report' thread.id %}'">
           <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4v2m0 5v1m0-11v1M4.22 4.22a9 9 0 1112.56 12.56M4.22 4.22l1.415 1.415m8.908-1.415l1.414 1.414m-3.121 3.12l1.414 1.415m-3.12-1.414l1.414-1.414" />

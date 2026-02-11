@@ -4,7 +4,7 @@ from django.urls import reverse_lazy
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.db.models import Count, Q
-from .models import Category, Resource, Tags, Thread, Replies, Likes, Report
+from .models import Category, Tags, Thread, Replies, Likes, Report, ThreadResource
 from django.contrib.postgres.search import TrigramSimilarity
 
 # Create your views here.
@@ -67,7 +67,6 @@ class ThreadListView(ListView):
     context_object_name = 'threads'
     paginate_by = 10
     ordering = ['-created_at']
-    
     def get_queryset(self):
         queryset = Thread.objects.annotate().select_related('author', 'category').prefetch_related('resources')
         q = self.request.GET.get("q")
@@ -86,13 +85,14 @@ class ThreadListView(ListView):
         context['tags'] = Tags.objects.all()
         return context
 
-class ThreadDetailView(DetailView):
+class ThreadDetailView(LoginRequiredMixin, DetailView):
     model = Thread
     template_name = 'forum/threads/detail.html'
     context_object_name = 'thread'
+    login_url = '/accounts/login/'
     
     def get_queryset(self):
-        return Thread.objects.select_related('author', 'category').prefetch_related('resources')
+        return Thread.objects.select_related('author', 'category').prefetch_related('resources', 'thread_resources')
     
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
@@ -100,7 +100,9 @@ class ThreadDetailView(DetailView):
             thread=self.object, 
             is_deleted=False
         ).select_related('author').order_by('created_at')
+        context['thread_resources'] = ThreadResource.objects.filter(thread=self.object)
         context['is_moderator'] = self.request.user.groups.filter(name='Moderator').exists()
+        context['is_author'] = self.request.user == self.object.author
         context['liked'] = Likes.objects.filter(thread=self.object, user=self.request.user).exists()
         return context
     
@@ -228,3 +230,45 @@ def review_report(request, report_id):
 def resolve_report(request, report_id):
     """Mark a report as resolved"""
     return update_report_status(request, report_id, 'resolved')
+
+@login_required
+def upload_thread_resource(request, thread_id):
+    """Upload a resource to a thread"""
+    thread = get_object_or_404(Thread, id=thread_id)
+    
+    # Only thread author can upload resources
+    if request.user != thread.author:
+        return redirect('thread-detail', pk=thread_id)
+    
+    if request.method == 'POST':
+        title = request.POST.get('title')
+        file_type = request.POST.get('file_type', 'other')
+        description = request.POST.get('description')
+        file = request.FILES.get('file')
+        
+        if title and file:
+            ThreadResource.objects.create(
+                thread=thread,
+                title=title,
+                file=file,
+                file_type=file_type,
+                description=description,
+                uploaded_by=request.user
+            )
+    
+    return redirect('thread-detail', pk=thread_id)
+
+@login_required
+def delete_thread_resource(request, resource_id):
+    """Delete a resource from a thread"""
+    resource = get_object_or_404(ThreadResource, id=resource_id)
+    thread_id = resource.thread.id
+    
+    # Only resource uploader or thread author can delete
+    if request.user != resource.uploaded_by and request.user != resource.thread.author:
+        return redirect('thread-detail', pk=thread_id)
+    
+    resource.file.delete()
+    resource.delete()
+    
+    return redirect('thread-detail', pk=thread_id)
