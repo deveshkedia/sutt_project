@@ -143,8 +143,6 @@ def like_thread(request, pk):
 @login_required
 def report_thread(request, thread_id):
     thread = get_object_or_404(Thread, id=thread_id)
-    
-    # Check if user has already reported this thread
     existing_report = Report.objects.filter(thread=thread, reporter=request.user).exists()
     
     if request.method == 'POST':
@@ -205,14 +203,10 @@ class ReportListView(LoginRequiredMixin, ListView):
 
 @login_required
 def update_report_status(request, report_id, status):
-    """Update the status of a report"""
-    # Check if user is moderator or staff
     if not (request.user.is_staff or request.user.groups.filter(name='Moderator').exists()):
         return redirect('report-list')
     
     report = get_object_or_404(Report, id=report_id)
-    
-    # Validate status
     valid_statuses = [choice[0] for choice in Report.STATUS_CHOICES]
     if status in valid_statuses:
         report.status = status
@@ -222,20 +216,15 @@ def update_report_status(request, report_id, status):
 
 @login_required
 def review_report(request, report_id):
-    """Mark a report as reviewed"""
     return update_report_status(request, report_id, 'reviewed')
 
 @login_required
 def resolve_report(request, report_id):
-    """Mark a report as resolved"""
     return update_report_status(request, report_id, 'resolved')
 
 @login_required
 def upload_thread_resource(request, thread_id):
-    """Upload a resource to a thread"""
     thread = get_object_or_404(Thread, id=thread_id)
-    
-    # Only thread author can upload resources
     if request.user != thread.author:
         return redirect('thread-detail', pk=thread_id)
     
@@ -259,11 +248,8 @@ def upload_thread_resource(request, thread_id):
 
 @login_required
 def delete_thread_resource(request, resource_id):
-    """Delete a resource from a thread"""
     resource = get_object_or_404(ThreadResource, id=resource_id)
     thread_id = resource.thread.id
-    
-    # Only resource uploader or thread author can delete
     if request.user != resource.uploaded_by and request.user != resource.thread.author:
         return redirect('thread-detail', pk=thread_id)
     
