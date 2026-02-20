@@ -76,9 +76,10 @@
       </div>
 
       <!-- Thread Content -->
-      <div class="prose prose-invert max-w-none mb-6">
-        <div class="text-gray-300 whitespace-pre-wrap">{{ thread.content|safe_markdown }}</div>
-      </div>
+      <div class="prose dark:prose-invert">
+    {{ content_html|safe }}
+</div>
+
 
       <!-- Resources Section -->
       <div class="divider"></div>

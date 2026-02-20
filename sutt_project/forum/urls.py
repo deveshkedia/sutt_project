@@ -4,6 +4,7 @@ from django.urls import path
 urlpatterns = [
   path("",views.forum_home, name="forum-home"),
   path("threads/",views.ThreadListView.as_view(), name="thread-list"),
+  path("my-threads/", views.MyThreadsListView.as_view(), name="my-threads"),
   path("threads/create",views.ThreadView.as_view(), name="thread-create"),
   path("threads/<int:pk>/",views.ThreadDetailView.as_view(), name="thread-detail"),
   path("threads/<int:pk>/like",views.like_thread, name="thread-like"),

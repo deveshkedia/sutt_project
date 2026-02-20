@@ -1,4 +1,4 @@
-FROM python:3.11
+FROM python:3.14
 
 WORKDIR /app
 
@@ -9,6 +9,8 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
 
 # Copy and install Python dependencies
 COPY sutt_project/requirements.txt .
+
+RUN python -m pip install --upgrade pip
 RUN pip install --no-cache-dir -r requirements.txt
 
 # Copy project

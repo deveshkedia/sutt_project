@@ -19,7 +19,7 @@ class Category(models.Model):
   
 class Thread(models.Model):
   title = models.CharField(max_length=200)
-  content = MartorField()
+  content = models.TextField()
   author = models.ForeignKey('auth.User', on_delete=models.SET_NULL,null=True)
   category = models.ForeignKey(Category, on_delete=models.SET_NULL,null=True)
   locked = models.BooleanField(default=False)

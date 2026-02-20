@@ -24,15 +24,15 @@
           <label class="label">
             <span class="label-text font-semibold">Thread Title</span>
             <span class="label-text-alt text-error">*</span>
-          </label>
-          <input 
+          </label><input 
             type="text" 
             name="title" 
             placeholder="Enter a descriptive title for your thread" 
             class="input input-bordered w-full focus:input-primary" 
             required
             maxlength="200"
-          />
+          /> 
+
           <label class="label">
             <span class="label-text-alt">Maximum 200 characters</span>
           </label>
@@ -45,12 +45,8 @@
             <span class="label-text font-semibold">Content</span>
             <span class="label-text-alt text-error">*</span>
           </label>
-          <textarea 
-          name="content" 
-          class="textarea textarea-bordered w-full h-48 focus:textarea-primary" 
-          placeholder="Write your thread content here..."
-          required
-          ></textarea>
+        <textarea id="markdown-editor" name="content"  placeholder="Add the content"  class="input input-bordered w-full focus:input-primary"required maxlength="200" rows="2">
+          </textarea>
           <label class="label">
             <span class="label-text-alt">Share your thoughts, questions, or ideas</span>
           </label>
@@ -153,5 +149,17 @@
     });
   });
 </script>
+
+<script>
+  var easyMDE = new EasyMDE({
+      element: document.getElementById("markdown-editor"),
+      spellChecker: false,
+      autosave: {
+          enabled: true,
+          uniqueId: "post-editor"
+      }
+  });
+</script>
+
 
 {% endblock %}

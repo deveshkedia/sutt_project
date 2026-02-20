@@ -5,7 +5,25 @@ from django.contrib.auth.decorators import login_required
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.db.models import Count, Q
 from .models import Category, Tags, Thread, Replies, Likes, Report, ThreadResource
+from forum.emails import send_thread_like_notification
 from django.contrib.postgres.search import TrigramSimilarity
+import markdown 
+import bleach
+
+
+ALLOWED_TAGS = [
+    "p", "h1", "h2", "h3", "h4", "h5", "h6",
+    "ul", "ol", "li",
+    "strong", "em", "blockquote",
+    "code", "pre",
+    "a",
+    "img",
+]
+
+ALLOWED_ATTRIBUTES = {
+    "a": ["href", "title"],
+    "img": ["src", "alt", "width", "height"],
+}
 
 # Create your views here.
 def forum_home(request):
@@ -84,6 +102,24 @@ class ThreadListView(ListView):
         context['tags'] = Tags.objects.all()
         return context
 
+class MyThreadsListView(LoginRequiredMixin, ListView):
+    model = Thread
+    template_name = 'forum/threads/my_threads.html'
+    context_object_name = 'threads'
+    paginate_by = 10
+    ordering = ['-created_at']
+    login_url = '/accounts/login/'
+    
+    def get_queryset(self):
+        queryset = Thread.objects.filter(author=self.request.user).select_related('author', 'category').prefetch_related('thread_resources')
+        return queryset.order_by('-created_at')
+    
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['categories'] = Category.objects.all()
+        context['tags'] = Tags.objects.all()
+        return context
+
 class ThreadDetailView(LoginRequiredMixin, DetailView):
     model = Thread
     template_name = 'forum/threads/detail.html'
@@ -103,6 +139,12 @@ class ThreadDetailView(LoginRequiredMixin, DetailView):
         context['is_moderator'] = self.request.user.groups.filter(name='Moderator').exists()
         context['is_author'] = self.request.user == self.object.author
         context['liked'] = Likes.objects.filter(thread=self.object, user=self.request.user).exists()
+        context['content_html'] = bleach.clean(
+            markdown.markdown(self.object.content, extensions=['fenced_code', 'codehilite']),
+        tags=ALLOWED_TAGS,
+        attributes=ALLOWED_ATTRIBUTES,
+        strip=True
+    )
         return context
     
 @login_required 
@@ -137,6 +179,17 @@ def like_thread(request, pk):
     else:
         Likes.objects.create(thread=thread, user=request.user)
         thread.likes_count = thread.likes_count + 1
+
+        if thread.author and thread.author != request.user:
+            try:
+                send_thread_like_notification(
+                    thread_author_email=thread.author.email,
+                    liker_name=request.user.get_full_name() or request.user.username,
+                    thread_title=thread.title
+                )
+            except Exception as e:
+                pass
+    
     thread.save()
     return redirect('thread-detail', pk=pk)
 
