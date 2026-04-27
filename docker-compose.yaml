@@ -17,6 +17,8 @@ services:
   django:
     build: .
     command: gunicorn sutt_project.wsgi:application --bind 0.0.0.0:8000 --log-level info
+    ports:
+      - "8000:8000"
     volumes:
       - static_files:/app/sutt_project/staticfiles
       - media_files:/app/sutt_project/media
@@ -25,19 +27,6 @@ services:
     depends_on:
       postgres_db:
         condition: service_healthy
-    restart: always
-
-  nginx:
-    image: nginx:latest
-    ports:
-      - "80:80"
-      - "443:443"
-    volumes:
-      - ./nginx/nginx.conf:/etc/nginx/nginx.conf:ro
-      - static_files:/app/staticfiles:ro
-      - media_files:/app/media:ro
-    depends_on:
-      - django
     restart: always
 
 volumes:
